@@ -1,0 +1,116 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+.ruff_cache/
+.tox/
+
+# Environments and secrets
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+ENV/
+
+# Editors/OS
+.DS_Store
+.idea/
+.vscode/
+
+# Builds
+build/
+dist/
+*.egg-info/
+
+# Project data/cache
+# Allow documents directory and its structure
+!data/documents/
+!data/documents/README.md
+
+# Ignore contents of document subdirectories but keep .gitkeep files
+data/documents/csv/*
+!data/documents/csv/.gitkeep
+data/documents/excel/*
+!data/documents/excel/.gitkeep
+data/documents/pdf/*
+!data/documents/pdf/.gitkeep
+data/documents/md/*
+!data/documents/md/.gitkeep
+data/documents/txt/*
+!data/documents/txt/.gitkeep
+
+# Ignore other data directories (but not documents)
+data/indexes/
+data/raw/
+!data/.gitkeep
+storage/
+logs/
+.cache/
+
+# Generated indexes or models
+indexes/
+checkpoints/
+
+# Project specific
+*.log
+.env.local
+.env.*.local
+
+# API keys and secrets (redundant but explicit)
+*_API_KEY
+*_SECRET
+*_TOKEN
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# IDE specific
+*.swp
+*.swo
+
+# OS generated
+Thumbs.db
+
+# Local development files
+*.local
+*.bak
+*.backup
+
+# PyCharm
+/.idea/
+*.iml
+
+# VS Code
+/.vscode/
+
+# Model files (large files)
+models/*/
+!models/.gitkeep
+
+# Evaluation results
+eval/results/
+eval/*.json
+eval/*.csv
+
+# Documentation build
+docs/_build/
+
+# Temporary files
+tmp/
+temp/
+
+# Python profiling
+*.prof
+
+# Coverage reports
+htmlcov/
+.coverage.*
+

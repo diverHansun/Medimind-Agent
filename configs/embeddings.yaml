@@ -1,0 +1,12 @@
+# Embedding Model Configuration
+# Configuration for medical document vectorization using ZhipuAI embedding-3
+
+embeddings:
+  # ZhipuAI embedding model configuration
+  zhipu:
+    enabled: true                    # Enable ZhipuAI embedding model
+    provider: zhipuai               # Embedding service provider
+    model: embedding-3              # ZhipuAI embedding model version
+    dim: 1024                       # Embedding vector dimension (must match FAISS index)
+    index_dir: data/indexes/zhipu   # FAISS index storage directory
+

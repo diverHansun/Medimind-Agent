@@ -1,0 +1,29 @@
+# Core RAG + integrations (install in your venv)
+llama-index==0.14.0
+llama-index-llms-zhipuai==0.4.1
+llama-index-embeddings-zhipuai==0.3.1
+llama-index-vector-stores-faiss==0.5.1
+llama-index-readers-file==0.5.4
+faiss-cpu==1.12.0
+
+# Hugging Face transformers (for BioBERT and other transformer models)
+transformers==4.57.1
+torch==2.9.0
+numpy==2.2.6
+
+# Configuration and data handling
+pyyaml==6.0.3
+
+# Document processing
+pandas<2.3.0           # For Excel file reading
+openpyxl==3.1.5         # For .xlsx files
+xlrd>=2.0.0             # For .xls files
+
+# Utilities
+pydantic==2.12.3
+python-dotenv==1.1.1
+tiktoken==0.12.0
+
+# Optional dependencies for enhanced features
+rich==14.2.0          # For rich terminal output
+sentence-transformers==5.1.1  # For additional embedding models
