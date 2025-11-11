@@ -37,31 +37,65 @@ def get_zhipu_api_key():
     return os.getenv("ZHIPU_API_KEY")
 
 
-def get_embedding_dimension():
-    """Get embedding dimension with priority: YAML config > environment variable > default.
-    
+def get_embedding_provider():
+    """Get embedding provider with priority: YAML config > environment variable > default.
+
     Priority order:
-    1. configs/embeddings.yaml (zhipu.dim)
+    1. configs/embeddings.yaml (embeddings.provider)
+    2. EMBEDDING_PROVIDER environment variable
+    3. Default: 'zhipu' (maintains backward compatibility)
+
+    Returns:
+        str: Embedding provider ('zhipu' or 'biobert')
+    """
+    # Try to get from YAML config first
+    embeddings_config = get_embeddings_config()
+    if embeddings_config and 'embeddings' in embeddings_config:
+        provider = embeddings_config['embeddings'].get('provider')
+        if provider:
+            return provider
+
+    # Fall back to environment variable
+    provider = os.getenv("EMBEDDING_PROVIDER")
+    if provider:
+        return provider
+
+    # Default to zhipu (backward compatibility)
+    return "zhipu"
+
+
+def get_embedding_dimension():
+    """Get embedding dimension based on the selected provider.
+
+    Priority order:
+    1. configs/embeddings.yaml (provider-specific dim)
     2. EMBEDDING_DIMENSION environment variable
-    3. Default: 1024 (matches ZhipuAI embedding-3)
-    
+    3. Default based on provider:
+       - zhipu: 1024 (embedding-3)
+       - biobert: 768 (BioBERT-v1.1)
+
     Returns:
         int: Embedding dimension
     """
     # Try to get from YAML config first
     embeddings_config = get_embeddings_config()
     if embeddings_config and 'embeddings' in embeddings_config:
-        zhipu_config = embeddings_config['embeddings'].get('zhipu', {})
-        if 'dim' in zhipu_config:
-            return zhipu_config['dim']
-    
+        provider = get_embedding_provider()
+        provider_config = embeddings_config['embeddings'].get(provider, {})
+        if 'dim' in provider_config:
+            return provider_config['dim']
+
     # Fall back to environment variable
     dim = os.getenv("EMBEDDING_DIMENSION")
     if dim and dim.isdigit():
         return int(dim)
-    
-    # Default to 1024 for embedding-3
-    return 1024
+
+    # Default based on provider
+    provider = get_embedding_provider()
+    if provider == "biobert":
+        return 768
+    else:  # zhipu
+        return 1024
 
 
 def get_embedding_model():
@@ -73,13 +107,41 @@ def get_embedding_model():
     return os.getenv("EMBEDDING_MODEL", "embedding-3")
 
 
-def get_biobert_model_path():
-    """Get BioBERT model path from environment variables or default to None.
-    
+def get_biobert_config():
+    """Get BioBERT configuration from YAML config.
+
     Returns:
-        str: Path to BioBERT model files, or None to use Hugging Face model
+        dict: BioBERT configuration including model_path, normalize, device, etc.
     """
-    return os.getenv("BIOBERT_MODEL_PATH")
+    embeddings_config = get_embeddings_config()
+    if embeddings_config and 'embeddings' in embeddings_config:
+        return embeddings_config['embeddings'].get('biobert', {})
+    return {}
+
+
+def get_biobert_model_path():
+    """Get BioBERT model path with priority: YAML config > environment variable > default.
+
+    Priority order:
+    1. configs/embeddings.yaml (biobert.model_path)
+    2. BIOBERT_MODEL_PATH environment variable
+    3. Default: 'models/biobert-v1.1'
+
+    Returns:
+        str: Path to BioBERT model files or HuggingFace model ID
+    """
+    # Try YAML config first
+    biobert_config = get_biobert_config()
+    if 'model_path' in biobert_config:
+        return biobert_config['model_path']
+
+    # Fall back to environment variable
+    model_path = os.getenv("BIOBERT_MODEL_PATH")
+    if model_path:
+        return model_path
+
+    # Default to local model path
+    return "models/biobert-v1.1"
 
 
 def get_embeddings_config():
@@ -256,30 +318,37 @@ def get_llm_system_prompt():
 
 
 def get_index_directory():
-    """Get index directory from config or environment variable.
-    
+    """Get index directory based on the selected embedding provider.
+
     Priority order:
-    1. configs/embeddings.yaml (zhipu.index_dir)
+    1. configs/embeddings.yaml (provider-specific index_dir)
     2. INDEX_DIR environment variable
-    3. Default: data/indexes/zhipu
-    
+    3. Default based on provider:
+       - zhipu: data/indexes/zhipu
+       - biobert: data/indexes/biobert
+
     Returns:
         str: Index directory path
     """
     # Try to get from YAML config first
     embeddings_config = get_embeddings_config()
     if embeddings_config and 'embeddings' in embeddings_config:
-        zhipu_config = embeddings_config['embeddings'].get('zhipu', {})
-        if 'index_dir' in zhipu_config:
-            return zhipu_config['index_dir']
-    
+        provider = get_embedding_provider()
+        provider_config = embeddings_config['embeddings'].get(provider, {})
+        if 'index_dir' in provider_config:
+            return provider_config['index_dir']
+
     # Fall back to environment variable
     index_dir = os.getenv("INDEX_DIR")
     if index_dir:
         return index_dir
-    
-    # Default directory
-    return "data/indexes/zhipu"
+
+    # Default directory based on provider
+    provider = get_embedding_provider()
+    if provider == "biobert":
+        return "data/indexes/biobert"
+    else:  # zhipu
+        return "data/indexes/zhipu"
 
 
 def get_documents_directory():
