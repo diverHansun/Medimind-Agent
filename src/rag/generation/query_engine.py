@@ -42,7 +42,7 @@ def build_query_engine(
     Example:
         >>> from src.rag.indexing import load_index
         >>> from src.llm.zhipu import build_llm
-        >>> from src.embeddings.zhipu import build_embedding
+        >>> from src.rag.embeddings.zhipu import build_embedding
         >>> 
         >>> embed_model = build_embedding()
         >>> index = load_index("data/indexes/zhipu", embed_model)
@@ -97,7 +97,7 @@ def build_simple_query_engine(
         
     Example:
         >>> from src.rag.indexing import load_index
-        >>> from src.embeddings.zhipu import build_embedding
+        >>> from src.rag.embeddings.zhipu import build_embedding
         >>> 
         >>> embed_model = build_embedding()
         >>> index = load_index("data/indexes/zhipu", embed_model)
@@ -107,6 +107,8 @@ def build_simple_query_engine(
         llm=llm,
         similarity_top_k=top_k
     )
+
+
 
 
 
