@@ -1,12 +1,24 @@
 # Embedding Model Configuration
-# Configuration for medical document vectorization using ZhipuAI embedding-3
+# Configuration for medical document vectorization
 
 embeddings:
+  # Provider selection: 'zhipu' or 'biobert'
+  # 可通过环境变量 EMBEDDING_PROVIDER 覆盖
+  provider: zhipu                   # Default: zhipu (保持向后兼容)
+
   # ZhipuAI embedding model configuration
   zhipu:
     enabled: true                    # Enable ZhipuAI embedding model
-    provider: zhipuai               # Embedding service provider
     model: embedding-3              # ZhipuAI embedding model version
     dim: 1024                       # Embedding vector dimension (must match FAISS index)
     index_dir: data/indexes/zhipu   # FAISS index storage directory
+
+  # BioBERT local embedding model configuration
+  biobert:
+    enabled: true                    # Enable BioBERT embedding model
+    model_path: models/biobert-v1.1 # Local model path or HuggingFace model ID
+    normalize: true                 # L2 normalization (recommended for cosine similarity)
+    dim: 768                        # BioBERT fixed dimension
+    index_dir: data/indexes/biobert # FAISS index storage directory
+    device: cpu                     # Device: 'cpu' or 'cuda'
 
