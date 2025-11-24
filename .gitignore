@@ -91,6 +91,8 @@ Thumbs.db
 # VS Code
 /.vscode/
 
+# Claude
+.claude/
 # Model files (large files)
 models/*/
 !models/.gitkeep

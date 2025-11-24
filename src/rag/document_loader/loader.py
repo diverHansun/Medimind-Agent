@@ -2,7 +2,7 @@
 
 This module wraps LlamaIndex's document loading functionality to provide
 a consistent interface for loading documents from various file formats.
-Documents are organized by type in subdirectories: txt/, pdf/, csv/, md/, excel/
+Documents are organized by type in subdirectories: txt/, pdf/, csv/, md/, excel/, word/
 """
 
 import os
@@ -10,6 +10,7 @@ from typing import List, Optional
 from pathlib import Path
 from llama_index.core import SimpleDirectoryReader, Document
 from llama_index.readers.file import PandasExcelReader
+from llama_index.readers.file.docs import DocxReader
 
 
 def load_documents_from_subdirs(
@@ -50,12 +51,13 @@ def load_documents_from_subdirs(
     
     # Default subdirectories to load from
     if subdirs is None:
-        subdirs = ["txt", "pdf", "csv", "md", "excel"]
-    
-    # Configure file extractor for Excel files
+        subdirs = ["txt", "pdf", "csv", "md", "excel", "word"]
+
+    # Configure file extractor for Excel and Word files
     file_extractor = {
         ".xlsx": PandasExcelReader(),
         ".xls": PandasExcelReader(),
+        ".docx": DocxReader(),
     }
     
     # Mapping of subdirectory to file extensions
@@ -65,6 +67,7 @@ def load_documents_from_subdirs(
         "csv": [".csv"],
         "md": [".md"],
         "excel": [".xlsx", ".xls"],
+        "word": [".docx"],
     }
     
     all_documents = []
@@ -109,7 +112,7 @@ def load_documents_from_subdirs(
     if not all_documents:
         raise ValueError(
             f"No documents found in subdirectories {subdirs} under {base_dir}. "
-            f"Please add documents to the respective subdirectories (txt/, pdf/, csv/, md/, excel/)."
+            f"Please add documents to the respective subdirectories (txt/, pdf/, csv/, md/, excel/, word/)."
         )
     
     print(f"  - Total: {len(all_documents)} documents from {len(loaded_subdirs)} subdirectories")
@@ -150,12 +153,13 @@ def load_documents(
     
     # Set default extensions if not specified
     if required_exts is None:
-        required_exts = [".txt", ".pdf", ".csv", ".md", ".xlsx", ".xls"]
-    
-    # Configure file extractor for Excel files
+        required_exts = [".txt", ".pdf", ".csv", ".md", ".xlsx", ".xls", ".docx"]
+
+    # Configure file extractor for Excel and Word files
     file_extractor = {
         ".xlsx": PandasExcelReader(),
         ".xls": PandasExcelReader(),
+        ".docx": DocxReader(),
     }
     
     # Load documents using SimpleDirectoryReader
@@ -241,19 +245,37 @@ def load_md_files(input_dir: str, recursive: bool = True) -> List[Document]:
 
 def load_excel_files(input_dir: str, recursive: bool = True) -> List[Document]:
     """Load only Excel files from a directory.
-    
+
     Supports both .xlsx and .xls formats. Each sheet in the Excel file
     will be loaded as a separate document.
-    
+
     Args:
         input_dir: Path to the directory containing Excel files
         recursive: Whether to recursively read subdirectories
-    
+
     Returns:
         List[Document]: List of loaded Excel documents
-    
+
     Example:
         >>> excel_docs = load_excel_files("data/documents/excel")
     """
     return load_documents(input_dir, recursive=recursive, required_exts=[".xlsx", ".xls"])
+
+
+def load_word_files(input_dir: str, recursive: bool = True) -> List[Document]:
+    """Load only Word files from a directory.
+
+    Supports .docx format.
+
+    Args:
+        input_dir: Path to the directory containing Word files
+        recursive: Whether to recursively read subdirectories
+
+    Returns:
+        List[Document]: List of loaded Word documents
+
+    Example:
+        >>> word_docs = load_word_files("data/documents/word")
+    """
+    return load_documents(input_dir, recursive=recursive, required_exts=[".docx"])
 

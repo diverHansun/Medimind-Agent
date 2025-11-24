@@ -18,6 +18,7 @@ pyyaml==6.0.3
 pandas<2.3.0           # For Excel file reading
 openpyxl==3.1.5         # For .xlsx files
 xlrd>=2.0.0             # For .xls files
+docx2txt==0.9           # For .docx files
 
 # Utilities
 pydantic==2.12.3

@@ -11,6 +11,7 @@ Organize your documents by file type:
 - `csv/` - CSV data files (.csv)
 - `md/` - Markdown files (.md)
 - `excel/` - Excel spreadsheets (.xlsx, .xls)
+- `word/` - Word documents (.docx)
 
 ## Supported Formats
 
@@ -20,6 +21,7 @@ The system supports the following file formats:
 - `.csv` - Structured medical data, drug information
 - `.md` - Markdown formatted documentation
 - `.xlsx` / `.xls` - Excel spreadsheets with medical data, drug databases, patient records
+- `.docx` - Word documents with medical content, reports, guidelines
 
 ## Usage
 
@@ -55,9 +57,12 @@ data/documents/
 │   └── drug_interactions.csv
 ├── md/
 │   └── medical_faq.md
-└── excel/
-    ├── drug_database.xlsx
-    └── patient_records.xls
+├── excel/
+│   ├── drug_database.xlsx
+│   └── patient_records.xls
+└── word/
+    ├── medical_report.docx
+    └── clinical_guidelines.docx
 ```
 
 ## Index Rebuilding

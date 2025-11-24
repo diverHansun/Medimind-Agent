@@ -6,7 +6,7 @@ MediMind-Agent 是一个基于 RAG（检索增强生成）技术的医疗健康�
 
 - 基于 RAG 的医疗问题回答
 - 首次运行时自动构建索引
-- 支持多种文档格式（TXT、PDF、CSV、MD）
+- 支持多种文档格式（TXT、PDF、CSV、MD、Excel、Word）
 - 可配置的检索参数
 - 自定义后处理器用于结果过滤
 
@@ -69,7 +69,8 @@ data/documents/
 ├── pdf/       # PDF 文档
 ├── csv/       # CSV 数据文件
 ├── md/        # Markdown 文件
-└── excel/     # Excel 电子表格（.xlsx、.xls）
+├── excel/     # Excel 电子表格（.xlsx、.xls）
+└── word/      # Word 文档（.docx）
 ```
 
 ### 4. 运行代理
@@ -110,7 +111,7 @@ MediMind-Agent/
 │   ├── llm/                    # LLM 工具（ZhipuAI GLM-4）
 │   ├── rag/                    # RAG 管道模块
 │   │   ├── embeddings/         # 嵌入模型（ZhipuAI embedding-3）
-│   │   ├── document_loader/    # 文档加载（TXT、PDF、CSV、MD、Excel）
+│   │   ├── document_loader/    # 文档加载（TXT、PDF、CSV、MD、Excel、Word）
 │   │   ├── text_splitter/      # 文本分块
 │   │   ├── indexing/           # 索引构建和加载
 │   │   ├── generation/         # 查询引擎

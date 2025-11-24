@@ -28,12 +28,14 @@ data/documents/
 │   ├── hypertension_guide.txt
 │   └── medication_reference.txt
 ├── excel/
-│   ├── drug_database.xlsx      # Your new Excel file
+│   ├── drug_database.xlsx
 │   └── patient_records.xls
 ├── pdf/
 │   └── clinical_guidelines.pdf
-└── csv/
-    └── drug_interactions.csv
+├── csv/
+│   └── drug_interactions.csv
+└── word/
+    └── medical_report.docx     # Your new Word file
 ```
 
 **Supported file types:**
@@ -42,6 +44,7 @@ data/documents/
 - `.csv` - CSV data
 - `.md` - Markdown
 - `.xlsx` / `.xls` - Excel spreadsheets
+- `.docx` - Word documents
 
 ### 2. Rebuild the Index
 
