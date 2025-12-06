@@ -26,7 +26,8 @@ logging.getLogger("httpcore").setLevel(logging.WARNING)
 from src.llm.zhipu import build_llm
 from src.rag.embeddings import build_embedding
 from src.rag.indexing import build_index_if_not_exists
-from src.rag.generation import build_query_engine
+from src.rag.generation.chat_engine import build_chat_engine
+from src.memory import build_chat_memory
 from src.agent.agent import MediMindAgent
 from src.common.config import get_index_directory, get_documents_directory
 
@@ -66,30 +67,36 @@ def main():
                 persist_dir=index_dir,
                 show_progress=True
             )
-            
-            # Build query engine
-            print("\n[4/4] Building query engine...")
-            query_engine = build_query_engine(
+
+            # Build memory
+            print("\n[4/4] Building chat engine with memory...")
+            memory = build_chat_memory(llm=llm, token_limit=64000)
+
+            # Build chat engine
+            chat_engine = build_chat_engine(
                 index=index,
                 llm=llm,
-                top_k=5,
-                similarity_cutoff=0.25
+                memory=memory,
+                similarity_top_k=10,
+                similarity_cutoff=0.1
             )
-            
-            # Initialize agent with RAG
-            agent = MediMindAgent(llm=llm, query_engine=query_engine)
-            print("RAG mode enabled")
-            
+
+            # Initialize agent with ChatEngine (multi-turn with memory)
+            agent = MediMindAgent(llm=llm, chat_engine=chat_engine)
+            print("RAG mode enabled (with conversation memory)")
+
         except FileNotFoundError as e:
             print(f"\nWarning: {e}")
-            print("Running in LLM-only mode (no RAG)")
+            print("Cannot initialize RAG - no documents found")
             print(f"To enable RAG, place documents in: {documents_dir}")
-            agent = MediMindAgent(llm=llm)
-        
+            print("Please add documents and restart the application")
+            sys.exit(1)
+
         except Exception as e:
-            print(f"\nWarning: Failed to initialize RAG: {e}")
-            print("Running in LLM-only mode")
-            agent = MediMindAgent(llm=llm)
+            print(f"\nFatal error during RAG initialization: {e}")
+            import traceback
+            traceback.print_exc()
+            sys.exit(1)
         
         print("\n" + "=" * 60)
         print("Ready! Start asking questions...")
@@ -99,18 +106,18 @@ def main():
         while True:
             try:
                 user_input = input("\nUser: ").strip()
-                
+
                 # Check for exit commands
                 if user_input.lower() in ['quit', 'exit', 'q']:
                     print("Assistant: Goodbye! Stay healthy!")
                     break
-                
+
                 # Skip empty input
                 if not user_input:
                     continue
-                
-                # Get response from agent
-                response = agent.query(user_input)
+
+                # Get response from agent (with conversation memory)
+                response = agent.chat(user_input)
                 print(f"\nAssistant: {response}")
                 
             except KeyboardInterrupt:

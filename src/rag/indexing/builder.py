@@ -25,9 +25,15 @@ def save_index_metadata(persist_dir: str, embed_model: BaseEmbedding) -> None:
         persist_dir: Directory where index is persisted
         embed_model: Embedding model used to build the index
     """
+    # Get model name safely (handle property objects)
+    try:
+        model_name = embed_model.model_name
+    except (AttributeError, TypeError):
+        model_name = "unknown"
+
     metadata = {
         "embedding_dimension": embed_model.dimensions,
-        "model_name": getattr(embed_model, "model_name", "unknown"),
+        "model_name": str(model_name),
     }
 
     metadata_path = os.path.join(persist_dir, "index_metadata.json")
