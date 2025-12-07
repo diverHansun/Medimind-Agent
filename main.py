@@ -70,7 +70,7 @@ def main():
 
             # Build memory
             print("\n[4/4] Building chat engine with memory...")
-            memory = build_chat_memory(llm=llm, token_limit=64000)
+            memory = build_chat_memory(llm=llm)
 
             # Build chat engine
             chat_engine = build_chat_engine(

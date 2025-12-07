@@ -8,7 +8,11 @@ import os
 from typing import Optional
 from llama_index.core.memory import ChatSummaryMemoryBuffer
 from llama_index.core.llms import LLM
-from src.common.config import load_yaml_config
+from src.common.config import (
+    load_yaml_config,
+    get_memory_token_limit,
+    get_memory_summarize_prompt,
+)
 
 
 # Default summarization prompt
@@ -38,7 +42,7 @@ def load_memory_config(config_path: str = "configs/memory.yaml") -> dict:
 
 def build_chat_memory(
     llm: LLM,
-    token_limit: int = 64000,
+    token_limit: Optional[int] = None,
     summarize_prompt: Optional[str] = None,
 ) -> ChatSummaryMemoryBuffer:
     """Build a chat memory buffer for multi-turn conversations.
@@ -46,11 +50,18 @@ def build_chat_memory(
     Uses ChatSummaryMemoryBuffer to maintain conversation history with
     automatic summarization when token limit is exceeded.
 
+    Configuration priority:
+    1. Function parameters (if provided)
+    2. configs/memory.yaml (memory section)
+    3. Environment variables (MEMORY_TOKEN_LIMIT, MEMORY_SUMMARIZE_PROMPT)
+    4. Defaults (64000, default prompt)
+
     Args:
         llm: LLM instance for generating summaries
-        token_limit: Maximum token count for memory buffer (default: 64000)
+        token_limit: Maximum token count for memory buffer.
+                    If None, loads from config (default from config: 64000)
         summarize_prompt: Optional custom summarization prompt.
-                         If None, uses default prompt.
+                         If None, loads from config or uses default prompt.
 
     Returns:
         ChatSummaryMemoryBuffer: Configured memory buffer instance
@@ -61,26 +72,36 @@ def build_chat_memory(
     Example:
         >>> from src.llm.zhipu import build_llm
         >>>
+        >>> # Use configuration from configs/memory.yaml
         >>> llm = build_llm()
-        >>> memory = build_chat_memory(llm=llm, token_limit=64000)
+        >>> memory = build_chat_memory(llm=llm)
+        >>>
+        >>> # Override with custom values
+        >>> memory = build_chat_memory(llm=llm, token_limit=32000)
         >>>
         >>> # With custom prompt
         >>> custom_prompt = "Summarize the medical consultation..."
         >>> memory = build_chat_memory(llm=llm, summarize_prompt=custom_prompt)
     """
-    if token_limit < 1000:
+    # Use provided parameters or fall back to config
+    final_token_limit = token_limit if token_limit is not None else get_memory_token_limit()
+    final_summarize_prompt = summarize_prompt if summarize_prompt is not None else get_memory_summarize_prompt()
+    
+    # Validate token limit
+    if final_token_limit < 1000:
         raise ValueError(
-            f"token_limit must be at least 1000, got {token_limit}"
+            f"token_limit must be at least 1000, got {final_token_limit}"
         )
 
-    # Use default prompt if not provided
-    final_prompt = summarize_prompt or DEFAULT_SUMMARIZE_PROMPT
+    # Use default prompt if still None after config check
+    if final_summarize_prompt is None:
+        final_summarize_prompt = DEFAULT_SUMMARIZE_PROMPT
 
     # Create memory buffer
     memory = ChatSummaryMemoryBuffer.from_defaults(
         llm=llm,
-        token_limit=token_limit,
-        summarize_prompt=final_prompt,
+        token_limit=final_token_limit,
+        summarize_prompt=final_summarize_prompt,
         count_initial_tokens=False,
     )
 

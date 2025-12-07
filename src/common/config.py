@@ -174,6 +174,70 @@ def get_llm_config():
     return load_yaml_config(config_path)
 
 
+def get_memory_config():
+    """Get memory configuration from YAML file.
+    
+    Returns:
+        dict: Memory configuration
+    """
+    config_path = os.path.join(os.path.dirname(__file__), "..", "..", "configs", "memory.yaml")
+    return load_yaml_config(config_path)
+
+
+def get_memory_token_limit():
+    """Get memory token limit with priority: YAML config > environment variable > default.
+    
+    Priority order:
+    1. configs/memory.yaml (memory.token_limit)
+    2. MEMORY_TOKEN_LIMIT environment variable
+    3. Default: 64000
+    
+    Returns:
+        int: Token limit for memory buffer
+    """
+    # Try YAML config first
+    memory_config = get_memory_config()
+    if memory_config and 'memory' in memory_config:
+        token_limit = memory_config['memory'].get('token_limit')
+        if token_limit:
+            return int(token_limit)
+    
+    # Fall back to environment variable
+    token_limit = os.getenv("MEMORY_TOKEN_LIMIT")
+    if token_limit and token_limit.isdigit():
+        return int(token_limit)
+    
+    # Default
+    return 64000
+
+
+def get_memory_summarize_prompt():
+    """Get memory summarize prompt with priority: YAML config > environment variable > None.
+    
+    Priority order:
+    1. configs/memory.yaml (memory.summarize_prompt)
+    2. MEMORY_SUMMARIZE_PROMPT environment variable
+    3. None (use default in build_chat_memory)
+    
+    Returns:
+        str or None: Summarize prompt for memory
+    """
+    # Try YAML config first
+    memory_config = get_memory_config()
+    if memory_config and 'memory' in memory_config:
+        prompt = memory_config['memory'].get('summarize_prompt')
+        if prompt and prompt.strip():
+            return prompt.strip()
+    
+    # Fall back to environment variable
+    prompt = os.getenv("MEMORY_SUMMARIZE_PROMPT")
+    if prompt and prompt.strip():
+        return prompt.strip()
+    
+    # No custom prompt
+    return None
+
+
 def get_llm_model():
     """Get LLM model name with priority: YAML config > environment variable > default.
     
@@ -376,7 +440,9 @@ def get_config():
         "llm_temperature": get_llm_temperature(),
         "llm_max_tokens": get_llm_max_tokens(),
         "llm_top_p": get_llm_top_p(),
+        "memory_token_limit": get_memory_token_limit(),
         "embeddings": get_embeddings_config(),
         "rag": get_rag_config(),
         "llm": get_llm_config(),
+        "memory": get_memory_config(),
     }
